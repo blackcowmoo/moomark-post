@@ -11,12 +11,12 @@ import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 
 class PassportFilter(
-    private val passportService: PassportService
+    private val passportService: PassportService,
 ) : GenericFilterBean() {
     override fun doFilter(
         request: ServletRequest,
         response: ServletResponse,
-        chain: FilterChain
+        chain: FilterChain,
     ) {
         val httpRequest = request as HttpServletRequest
         val passport = httpRequest.getHeader("x-moom-passport-user")
@@ -30,10 +30,10 @@ class PassportFilter(
         chain.doFilter(request, response)
     }
 
-    private fun getAuthentication(user: User): Authentication =
+    private fun getAuthentication(user: User?): Authentication =
         UsernamePasswordAuthenticationToken(
             user,
             "",
-            listOf(SimpleGrantedAuthority("ROLE_USER"))
+            listOf(SimpleGrantedAuthority("ROLE_USER")),
         )
 }
