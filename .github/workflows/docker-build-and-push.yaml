@@ -28,7 +28,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ~/.gradle
-          key: java-${{ hashFiles('build.gradle') }}
+          key: java-${{ hashFiles('build.gradle.kts') }}
 
       - name: Run build
         run: ./gradlew build -x checkstyleMain -x test -x checkstyleTest --stacktrace -Pprofile=production
