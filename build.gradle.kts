@@ -4,6 +4,7 @@ plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "1.7.21"
     id("org.jetbrains.kotlin.plugin.spring") version "1.7.21"
+    kotlin("plugin.jpa") version "1.7.21"
     id("jacoco")
     id("org.jlleitschuh.gradle.ktlint") version "11.4.0"
     id("io.gitlab.arturbosch.detekt") version "1.22.0"
