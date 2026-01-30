@@ -1,81 +1,59 @@
-package com.moomark.post.model.entity;
+package com.moomark.post.model.entity
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.EntityListeners
+import javax.persistence.GeneratedValue
+import javax.persistence.GenerationType
+import javax.persistence.Id
+import javax.persistence.OneToMany
 
 @Entity
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EntityListeners(AuditingEntityListener.class)
-public class Post {
+@EntityListeners(AuditingEntityListener::class)
+class Post(
+    @Column(name = "user_id")
+    var userId: String,
+    @Column(name = "title")
+    var title: String,
+    @Column(name = "content", columnDefinition = "TEXT")
+    var content: String
+) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Column(name = "recommend_count")
+    var recommendCount: Long = 0L
 
-  @Column(name = "user_id")
-  private String userId;
+    @Column(name = "views_count")
+    var viewsCount: Long = 0L
 
-  @Column(name = "recommend_count")
-  private Long recommendCount;
+    @Column(name = "upload_time")
+    var uploadTime: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC)
 
-  @Column(name = "views_count")
-  private Long viewsCount;
+    @Column(name = "category_id")
+    @OneToMany(mappedBy = "post")
+    var postCategory: MutableList<PostCategory> = mutableListOf()
 
-  @Column(name = "title")
-  private String title;
-
-  @Column(name = "content", columnDefinition = "TEXT")
-  private String content;
-
-  @Column(name = "upload_time")
-  private LocalDateTime uploadTime;
-
-  @Column(name = "category_id")
-  @OneToMany(mappedBy = "post")
-  private List<PostCategory> postCategory = new ArrayList<>();
-
-  @Builder
-  public Post(String userId, String title, String content) {
-    this.userId = userId;
-    this.title = title;
-    this.content = content;
-    this.recommendCount = 0L;
-    this.viewsCount = 0L;
-    this.uploadTime = LocalDateTime.now(ZoneOffset.UTC);
-  }
-
-  /* Function List */
-  public void upCountViewCount() {
-    this.viewsCount++;
-  }
-
-  public void downCountViewCount() {
-    if (0 < this.viewsCount) {
-      this.viewsCount--;
+    fun upCountViewCount() {
+        viewsCount++
     }
-  }
 
-  public void updateInformation(String title, String content) {
-    this.title = title;
-    this.content = content;
-    this.uploadTime = LocalDateTime.now();
-  }
+    fun downCountViewCount() {
+        if (viewsCount > 0) {
+            viewsCount--
+        }
+    }
+
+    fun updateInformation(
+        title: String,
+        content: String
+    ) {
+        this.title = title
+        this.content = content
+        this.uploadTime = LocalDateTime.now()
+    }
 }

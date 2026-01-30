@@ -1,46 +1,39 @@
-package com.moomark.post.configuration.passport;
+package com.moomark.post.configuration.passport
 
-import java.io.IOException;
-import java.util.Arrays;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.web.filter.GenericFilterBean
+import javax.servlet.FilterChain
+import javax.servlet.ServletRequest
+import javax.servlet.ServletResponse
+import javax.servlet.http.HttpServletRequest
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
+class PassportFilter(
+    private val passportService: PassportService
+) : GenericFilterBean() {
+    override fun doFilter(
+        request: ServletRequest,
+        response: ServletResponse,
+        chain: FilterChain
+    ) {
+        val httpRequest = request as HttpServletRequest
+        val passport = httpRequest.getHeader("x-moom-passport-user")
+        val key = httpRequest.getHeader("x-moom-passport-key")
+        if (passport != null && key != null) {
+            val user = passportService.parsePassport(passport, key)
+            val auth = getAuthentication(user)
+            SecurityContextHolder.getContext().authentication = auth
+        }
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.GenericFilterBean;
-
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
-public class PassportFilter extends GenericFilterBean {
-  private final PassportService passportService;
-
-  @Override
-  public void doFilter(
-          ServletRequest request,
-          ServletResponse response,
-          FilterChain chain
-  ) throws ServletException, IOException {
-    String passport = ((HttpServletRequest) request).getHeader("x-moom-passport-user");
-    String key = ((HttpServletRequest) request).getHeader("x-moom-passport-key");
-
-    if (passport != null && key != null) {
-      User user = passportService.parsePassport(passport, key);
-      Authentication auth = getAuthentication(user);
-      SecurityContextHolder.getContext().setAuthentication(auth);
+        chain.doFilter(request, response)
     }
 
-    chain.doFilter(request, response);
-  }
-
-  public Authentication getAuthentication(User user) {
-    return new UsernamePasswordAuthenticationToken(user, "",
-        Arrays.asList(new SimpleGrantedAuthority("ROLE_USER")));
-  }
+    private fun getAuthentication(user: User): Authentication =
+        UsernamePasswordAuthenticationToken(
+            user,
+            "",
+            listOf(SimpleGrantedAuthority("ROLE_USER"))
+        )
 }

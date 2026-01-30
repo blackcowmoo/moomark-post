@@ -1,13 +1,6 @@
-package com.moomark.post.model.option;
+package com.moomark.post.model.option
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-
-@Data
-@Builder
-@AllArgsConstructor
-public class SortOption {
-  private SearchKey key;
-  private Boolean asc;
-}
+data class SortOption(
+    var key: SearchKey,
+    var asc: Boolean
+)

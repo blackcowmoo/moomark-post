@@ -1,12 +1,9 @@
-package com.moomark.post.configuration.passport;
+package com.moomark.post.configuration.passport
 
-import lombok.Data;
+import java.sql.Timestamp
 
-import java.sql.Timestamp;
-
-@Data
-public class Passport {
-  public Timestamp exp; // expired timestamp
-  public String key;
-  public String hash;
-}
+data class Passport(
+    var exp: Timestamp? = null, // expired timestamp
+    var key: String? = null,
+    var hash: String? = null
+)

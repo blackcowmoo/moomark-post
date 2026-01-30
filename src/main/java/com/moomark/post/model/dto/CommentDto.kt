@@ -1,19 +1,10 @@
-package com.moomark.post.model.dto;
+package com.moomark.post.model.dto
 
-import java.util.List;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-
-@Data
-@Builder
-@AllArgsConstructor
-public class CommentDto {
-  private Long id;
-  private String userId;
-  private Long postId;
-  private Long parentsId;
-  private List<Long> childIdList;
-  private String content;
-}
+data class CommentDto(
+    val id: Long? = null,
+    val userId: String? = null,
+    val postId: Long? = null,
+    val parentsId: Long? = null,
+    val childIdList: List<Long>? = null,
+    val content: String? = null
+)

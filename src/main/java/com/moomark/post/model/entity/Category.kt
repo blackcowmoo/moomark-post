@@ -1,72 +1,53 @@
-package com.moomark.post.model.entity;
+package com.moomark.post.model.entity
 
-import java.util.List;
-import java.util.Optional;
-
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener
+import javax.persistence.Column
+import javax.persistence.Entity
+import javax.persistence.EntityListeners
+import javax.persistence.FetchType
+import javax.persistence.GeneratedValue
+import javax.persistence.GenerationType
+import javax.persistence.Id
+import javax.persistence.JoinColumn
+import javax.persistence.ManyToOne
+import javax.persistence.OneToMany
 
 @Entity
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@EntityListeners(AuditingEntityListener.class)
-public class Category {
+@EntityListeners(AuditingEntityListener::class)
+class Category(
+    @Column(name = "category_type")
+    var categoryType: String
+) {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @OneToMany(mappedBy = "category")
+    var post: MutableList<PostCategory> = mutableListOf()
 
-  @OneToMany(mappedBy = "category")
-  private List<PostCategory> post;
+    @JoinColumn(name = "parent_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    var parent: Category? = null
 
-  private String categoryType;
+    @OneToMany(mappedBy = "parent")
+    var childList: MutableList<Category> = mutableListOf()
 
-  @JoinColumn(name = "parent_id")
-  @ManyToOne(fetch = FetchType.LAZY)
-  private Category parent;
+    fun updateCategoryInfo(categoryType: String) {
+        this.categoryType = categoryType
+    }
 
-  @OneToMany(mappedBy = "parent")
-  private List<Category> childList;
+    fun addChildCategory(childCategory: Category) {
+        childCategory.setParents(this)
+        this.childList.add(childCategory)
+    }
 
-  @Builder
-  public Category(String type) {
-    this.categoryType = type;
-  }
+    fun removeChildCategory(category: Category) {
+        this.childList.remove(category)
+    }
 
-  public void updateCategoryInfo(String categoryType) {
-    this.categoryType = categoryType;
-  }
+    fun setParents(parentCategory: Category) {
+        this.parent = parentCategory
+    }
 
-  public void addChildCategory(Category childCategory) {
-    childCategory.setParents(this);
-    this.childList.add(childCategory);
-  }
-
-  public void removeChildCategory(Category category) {
-    this.childList.remove(category);
-  }
-
-  public void setParents(Category parentCategory) {
-    this.parent = parentCategory;
-  }
-
-  public Long getParentAfterNullCheck() {
-    return Optional.ofNullable(this.parent)
-        .map(Category::getId)
-        .orElse((long) 0);
-  }
+    fun getParentAfterNullCheck(): Long = parent?.id ?: 0L
 }

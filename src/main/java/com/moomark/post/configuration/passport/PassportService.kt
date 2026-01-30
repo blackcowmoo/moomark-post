@@ -1,60 +1,61 @@
-package com.moomark.post.configuration.passport;
+package com.moomark.post.configuration.passport
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.Base64;
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Service
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
+import java.sql.Timestamp
+import java.time.LocalDateTime
+import java.util.Base64
+import javax.crypto.spec.SecretKeySpec
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.extern.slf4j.Slf4j;
-
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
-
-@Slf4j
 @Service
-public class PassportService {
+class PassportService(
+    private val mapper: ObjectMapper,
+    private val passportRepository: PassportRepository
+) {
+    private val decoder: Base64.Decoder = Base64.getDecoder()
 
-  @Autowired
-  private ObjectMapper mapper;
-
-  @Autowired
-  private PassportRepository passportRepository;
-
-  private Base64.Decoder decoder = Base64.getDecoder();
-
-  public User parsePassport(String passport, String passportKey) {
-    try {
-      Passport passportResult = decryptPassport(passportKey);
-      if (passportResult.getExp().after(Timestamp.valueOf(LocalDateTime.now()))) {
-        String hash = passportResult.getHash();
-        SecretKey key = new SecretKeySpec(decoder.decode(passportResult.getKey()), "AES");
-        String userBody = passportRepository.aesDecrypt(decoder.decode(passport), key);
-        if (getHash(userBody).equals(hash)) {
-          return mapper.readValue(decoder.decode(userBody), User.class);
-        }
-      }
-    } catch (Exception e) {
-      log.error(e.getMessage(), e);
+    companion object {
+        private val log = LoggerFactory.getLogger(PassportService::class.java)
     }
 
-    return null;
-  }
+    fun parsePassport(
+        passport: String,
+        passportKey: String
+    ): User? =
+        try {
+            val passportResult = decryptPassport(passportKey)
+            if (passportResult.exp?.after(Timestamp.valueOf(LocalDateTime.now())) == true) {
+                val hash = passportResult.hash
+                val key = SecretKeySpec(decoder.decode(passportResult.key), "AES")
+                val userBody = passportRepository.aesDecrypt(decoder.decode(passport), key)
+                if (getHash(userBody) == hash) {
+                    mapper.readValue(decoder.decode(userBody), User::class.java)
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            log.error(e.message, e)
+            null
+        }
 
-  private Passport decryptPassport(String passport) throws Exception {
-    return mapper.readValue(passportRepository.rsaDecryptByPublicKey(decoder.decode(passport)), Passport.class);
-  }
+    @Throws(Exception::class)
+    private fun decryptPassport(passport: String): Passport {
+        val decrypted =
+            passportRepository.rsaDecryptByPublicKey(decoder.decode(passport))
+                ?: throw IllegalStateException("Failed to decrypt passport")
+        return mapper.readValue(decrypted, Passport::class.java)
+    }
 
-  private String getHash(String user) throws Exception {
-    MessageDigest md = MessageDigest.getInstance("MD5");
-    byte[] digest = md.digest(user.getBytes(StandardCharsets.UTF_8));
-    return DatatypeConverter.printHexBinary(digest);
-  }
-
+    @Throws(Exception::class)
+    private fun getHash(user: String): String {
+        val md = MessageDigest.getInstance("MD5")
+        val digest = md.digest(user.toByteArray(StandardCharsets.UTF_8))
+        return digest.joinToString("") { "%02X".format(it) }
+    }
 }

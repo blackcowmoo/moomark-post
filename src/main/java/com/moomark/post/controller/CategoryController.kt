@@ -1,93 +1,94 @@
-package com.moomark.post.controller;
+package com.moomark.post.controller
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.moomark.post.exception.JpaException;
-import com.moomark.post.model.dto.CategoryDto;
-import com.moomark.post.service.PostService;
-import com.moomark.post.service.CategoryService;
-
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import com.moomark.post.exception.JpaException
+import com.moomark.post.model.dto.CategoryDto
+import com.moomark.post.service.CategoryService
+import com.moomark.post.service.PostService
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequiredArgsConstructor
-public class CategoryController {
-  private final CategoryService categoryService;
-  private final PostService postService;
+class CategoryController(
+    private val categoryService: CategoryService,
+    private val postService: PostService
+) {
+    data class RequestCategoryInfo(
+        val categoryId: Long,
+        val categoryInfo: String
+    )
 
-  /* static class */
-  @Data
-  static class RequestCategoryInfo {
-    Long categoryId;
-    String categoryInfo;
-  }
+    data class RequestChildCategory(
+        val parentId: Long,
+        val childId: Long
+    )
 
-  @Data
-  static class RequestChildCategory {
-    Long parentId;
-    Long childId;
-  }
+    data class RequestAddCategoryToPost(
+        val postId: Long,
+        val categoryId: Long
+    )
 
-  @Data
-  static class RequestAddCategoryToPost {
-    Long postId;
-    Long categoryId;
-  }
+    @GetMapping("/category/{id}")
+    @Throws(JpaException::class)
+    fun getCategoryInfo(
+        @PathVariable("id") categoryId: Long
+    ): ResponseEntity<CategoryDto> = ResponseEntity(categoryService.getCategoryById(categoryId), HttpStatus.OK)
 
-  /* Get */
-  @GetMapping("/category/{id}")
-  public ResponseEntity<CategoryDto> getCategoryInfo(@PathVariable("id") Long categoryId)
-      throws JpaException {
-    return new ResponseEntity<>(categoryService.getCategoryById(categoryId), HttpStatus.OK);
-  }
+    @PostMapping("/category/{info}")
+    fun addCategoryInfo(
+        @PathVariable("info") categoryInfo: String
+    ): Long = categoryService.addCategory(categoryInfo)
 
-  /* Post */
-  @PostMapping("/category/{info}")
-  public Long addCategoryInfo(@PathVariable("info") String cateogryInfo) {
-    return categoryService.addCategory(cateogryInfo);
-  }
+    @PostMapping("/category/child")
+    @Throws(JpaException::class)
+    fun addChildCategory(
+        @RequestBody request: RequestChildCategory
+    ): ResponseEntity<String> {
+        categoryService.addChildCategory(request.parentId, request.childId)
+        return ResponseEntity("Success to add child category", HttpStatus.OK)
+    }
 
-  @PostMapping("/category/child")
-  public ResponseEntity<String> addChildCategory(@RequestBody RequestChildCategory request)
-      throws JpaException {
-    categoryService.addChildCategory(request.parentId, request.childId);
-    return new ResponseEntity<>("Success to add child category", HttpStatus.OK);
-  }
+    @PostMapping("/category/mapping")
+    @Throws(JpaException::class)
+    fun addCategoryToPost(
+        @RequestBody requestInformation: RequestAddCategoryToPost
+    ) {
+        postService.addCategoryToPost(
+            requestInformation.postId,
+            requestInformation.categoryId
+        )
+    }
 
-  @PostMapping("/category/mapping")
-  public void addCategoryToPost(@RequestBody RequestAddCategoryToPost requestInformation)
-      throws JpaException {
-    postService.addCategoryToPost(requestInformation.getPostId(),
-        requestInformation.getCategoryId());
-  }
+    @PutMapping("/category/child")
+    @Throws(JpaException::class)
+    fun updateCategoryInfo(
+        @RequestBody requestCategoryInfo: RequestCategoryInfo
+    ) {
+        categoryService.updateCategory(
+            requestCategoryInfo.categoryId,
+            requestCategoryInfo.categoryInfo
+        )
+    }
 
-  /* Put */
-  @PutMapping("/category/child")
-  public void updateCategoryInfo(@RequestBody RequestCategoryInfo requestCategoryInfo)
-      throws JpaException {
-    categoryService.updateCategory(requestCategoryInfo.getCategoryId(),
-        requestCategoryInfo.getCategoryInfo());
-  }
+    @DeleteMapping("/category")
+    @Throws(JpaException::class)
+    fun deleteCategory(
+        @RequestBody requestCategoryInfo: RequestCategoryInfo
+    ) {
+        categoryService.deleteCategory(requestCategoryInfo.categoryId)
+    }
 
-  /* Delete */
-  @DeleteMapping("/category")
-  public void deleteCateogory(@RequestBody RequestCategoryInfo requestCategoryInfo)
-      throws JpaException {
-    categoryService.deleteCategory(requestCategoryInfo.getCategoryId());
-  }
-
-  @DeleteMapping("/category/child")
-  public void deleteChildCategory(@RequestBody RequestChildCategory requset) throws JpaException {
-    categoryService.deleteChildCategory(requset.parentId, requset.childId);
-
-  }
+    @DeleteMapping("/category/child")
+    @Throws(JpaException::class)
+    fun deleteChildCategory(
+        @RequestBody request: RequestChildCategory
+    ) {
+        categoryService.deleteChildCategory(request.parentId, request.childId)
+    }
 }

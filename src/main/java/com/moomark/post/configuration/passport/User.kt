@@ -1,13 +1,12 @@
-package com.moomark.post.configuration.passport;
+package com.moomark.post.configuration.passport
 
-public class User {
-  public String id;
-  public String email;
-  public String nickname;
-  public String picture;
-  public String authProvider;
+class User {
+    var id: String? = null
+    var email: String? = null
+    var nickname: String? = null
+    var picture: String? = null
+    var authProvider: String? = null
 
-  public String getUserId() {
-    return authProvider + "@" + id;
-  }
+    val userId: String
+        get() = authProvider + "@" + id
 }

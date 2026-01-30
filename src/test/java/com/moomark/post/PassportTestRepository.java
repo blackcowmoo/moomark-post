@@ -1,14 +1,9 @@
 package com.moomark.post;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-
-import javax.annotation.PostConstruct;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.moomark.post.configuration.passport.Passport;
 import com.moomark.post.configuration.passport.PassportResponse;
+import java.util.Random;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -47,10 +42,10 @@ public class PassportTestRepository {
     userId = String.valueOf(random.nextInt(Integer.MAX_VALUE));
   }
 
-  @Override
-  protected void finalize() {
-    withdrawUser();
-  }
+//  @Override
+//  protected void finalize() {
+//    withdrawUser();
+//  }
 
   public String loginUser() {
     UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(loginEndpoint)

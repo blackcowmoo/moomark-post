@@ -1,32 +1,14 @@
-package com.moomark.post.model.dto;
+package com.moomark.post.model.dto
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.LocalDateTime
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostDto {
-  private Long id;
-  
-  private String userId;
-  
-  private Long recommendCount;
-  
-  private Long viewsCount;
-  
-  private String title;
-  
-  private String content;
-  
-  private LocalDateTime uploadTime;
-  
-  private List<CategoryDto> categories;
-}
+data class PostDto(
+    val id: Long? = null,
+    val userId: String? = null,
+    val recommendCount: Long? = null,
+    val viewsCount: Long? = null,
+    val title: String? = null,
+    val content: String? = null,
+    val uploadTime: LocalDateTime? = null,
+    val categories: List<CategoryDto>? = null
+)
