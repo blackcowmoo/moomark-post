@@ -97,3 +97,9 @@ configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         exclude("**/generated/**") // 생성된 파일 제외
     }
 }
+
+detekt {
+    toolVersion = "1.22.0"
+    config = files("detekt-config.yml")
+    buildUponDefaultConfig = true
+}
