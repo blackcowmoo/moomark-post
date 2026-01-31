@@ -76,7 +76,7 @@ jobs:
           reporter: java-junit
 
       - name: Delete existing comment
-        uses: izhangzhihao/delete-comment@v0.0.3
+        uses: izhangzhihao/delete-comment@master
         if: always()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
