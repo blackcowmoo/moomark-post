@@ -42,22 +42,24 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v1
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
         with:
-          java-version: 11
+          java-version: '11'
+          distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Verify MySql connection
         env:
           PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
           while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
+            echo "Waiting for MySQL..."
             sleep 1
           done
-      - uses: actions/cache@v2
-        with:
-          path: ~/.gradle
-          key: java-${{ hashFiles('build.gradle') }}
 
       - name: Run build
         run: ./gradlew build -x checkstyleMain -x test -x checkstyleTest --stacktrace
@@ -70,10 +72,11 @@ jobs:
         if: always()
         with:
           name: junit Tests
-          path: ${{ github.workspace }}/build/test-results/test/**/*.xml
+          path: build/test-results/test/**/*.xml
           reporter: java-junit
 
-      - uses: izhangzhihao/delete-comment@master
+      - name: Delete existing comment
+        uses: izhangzhihao/delete-comment@v0.0.3
         if: always()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -81,22 +84,29 @@ jobs:
           issue_number: ${{ github.event.number }}
 
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action@v1
+        uses: EnricoMi/publish-unit-test-result-action@v2
         if: always()
         with:
-          files: ${{ github.workspace }}/build/test-results/**/*.xml
+          files: build/test-results/**/*.xml
 
       - name: Add coverage to PR
         id: coverage
-        uses: madrapps/jacoco-report@v1.2
+        uses: madrapps/jacoco-report@v1.7.1
         if: always()
         with:
           paths: ${{ github.workspace }}/build/reports/jacoco/test/jacocoTestReport.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: ${{ env.MIN_TEST_COVERAGE }}
 
-      - name: coverage
-        run: echo "$RESULT_COVERAGE < $COVERAGE" && [[ "$(echo $RESULT_COVERAGE | awk '{print $1*100}')" -gt "$(echo $COVERAGE | awk '{print $1*100}')" ]]
+      - name: Coverage check logic
+        if: always()
+        run: |
+          echo "Current Coverage: $RESULT_COVERAGE"
+          echo "Min Coverage: $COVERAGE"
+          if (( $(echo "$RESULT_COVERAGE < $COVERAGE" | bc -l) )); then
+            echo "Coverage is too low!"
+            exit 1
+          fi
         env:
           COVERAGE: ${{ env.MIN_TEST_COVERAGE }}
           RESULT_COVERAGE: ${{ steps.coverage.outputs.coverage-overall }}
