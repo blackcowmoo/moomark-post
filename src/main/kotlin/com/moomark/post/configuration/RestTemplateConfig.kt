@@ -17,12 +17,11 @@ class RestTemplateConfig {
     }
 
     @Bean
-    fun restTemplate(restTemplateBuilder: RestTemplateBuilder): RestTemplate =
-        restTemplateBuilder
-            .requestFactory {
-                BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
-            }.setConnectTimeout(Duration.ofMillis(TIMEOUT_MILLIS))
-            .setReadTimeout(Duration.ofMillis(TIMEOUT_MILLIS))
-            .additionalMessageConverters(StringHttpMessageConverter(StandardCharsets.UTF_8))
-            .build()
+    fun restTemplate(restTemplateBuilder: RestTemplateBuilder): RestTemplate = restTemplateBuilder
+        .requestFactory {
+            BufferingClientHttpRequestFactory(SimpleClientHttpRequestFactory())
+        }.setConnectTimeout(Duration.ofMillis(TIMEOUT_MILLIS))
+        .setReadTimeout(Duration.ofMillis(TIMEOUT_MILLIS))
+        .additionalMessageConverters(StringHttpMessageConverter(StandardCharsets.UTF_8))
+        .build()
 }

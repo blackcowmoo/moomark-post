@@ -16,7 +16,7 @@ import javax.persistence.OneToMany
 @EntityListeners(AuditingEntityListener::class)
 class Category(
     @Column(name = "category_type")
-    var categoryType: String
+    var categoryType: String,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

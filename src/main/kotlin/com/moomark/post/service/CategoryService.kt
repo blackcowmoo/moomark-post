@@ -11,14 +11,14 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional(readOnly = true) // 읽기 전용 기본 설정
 class CategoryService(
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
 ) {
     fun getCategoryById(id: Long): CategoryDto {
         val category =
             categoryRepository.findById(id).orElseThrow {
                 JpaException(
                     ErrorCode.CANNOT_FIND_CATEGORY.msg,
-                    ErrorCode.CANNOT_FIND_CATEGORY.code
+                    ErrorCode.CANNOT_FIND_CATEGORY.code,
                 )
             }
 
@@ -26,7 +26,7 @@ class CategoryService(
         return CategoryDto(
             id = category.id,
             categoryType = category.categoryType,
-            parentsId = category.getParentAfterNullCheck()
+            parentsId = category.getParentAfterNullCheck(),
         )
     }
 
@@ -34,22 +34,19 @@ class CategoryService(
     fun addCategory(information: String): Long {
         val category =
             Category(
-                categoryType = information
+                categoryType = information,
             )
 
         return categoryRepository.save(category).id!!
     }
 
     @Transactional
-    fun updateCategory(
-        categoryId: Long,
-        information: String
-    ) {
+    fun updateCategory(categoryId: Long, information: String) {
         val category =
             categoryRepository.findById(categoryId).orElseThrow {
                 JpaException(
                     ErrorCode.CANNOT_FIND_CATEGORY.msg,
-                    ErrorCode.CANNOT_FIND_CATEGORY.code
+                    ErrorCode.CANNOT_FIND_CATEGORY.code,
                 )
             }
 
@@ -62,15 +59,12 @@ class CategoryService(
     }
 
     @Transactional
-    fun addChildCategory(
-        parentId: Long,
-        childId: Long
-    ) {
+    fun addChildCategory(parentId: Long, childId: Long) {
         val parentCategory =
             categoryRepository.findById(parentId).orElseThrow {
                 JpaException(
                     ErrorCode.CANNOT_FIND_PARENT_CATEGORY.msg,
-                    ErrorCode.CANNOT_FIND_PARENT_CATEGORY.code
+                    ErrorCode.CANNOT_FIND_PARENT_CATEGORY.code,
                 )
             }
 
@@ -78,7 +72,7 @@ class CategoryService(
             categoryRepository.findById(childId).orElseThrow {
                 JpaException(
                     ErrorCode.CANNOT_FIND_CHILD_CATEGORY.msg,
-                    ErrorCode.CANNOT_FIND_CHILD_CATEGORY.code
+                    ErrorCode.CANNOT_FIND_CHILD_CATEGORY.code,
                 )
             }
 
@@ -86,15 +80,12 @@ class CategoryService(
     }
 
     @Transactional
-    fun deleteChildCategory(
-        parentId: Long,
-        childId: Long
-    ): Boolean {
+    fun deleteChildCategory(parentId: Long, childId: Long): Boolean {
         val parentCategory =
             categoryRepository.findById(parentId).orElseThrow {
                 JpaException(
                     ErrorCode.CANNOT_FIND_PARENT_CATEGORY.msg,
-                    ErrorCode.CANNOT_FIND_PARENT_CATEGORY.code
+                    ErrorCode.CANNOT_FIND_PARENT_CATEGORY.code,
                 )
             }
 
@@ -102,7 +93,7 @@ class CategoryService(
             categoryRepository.findById(childId).orElseThrow {
                 JpaException(
                     ErrorCode.CANNOT_FIND_CHILD_CATEGORY.msg,
-                    ErrorCode.CANNOT_FIND_CHILD_CATEGORY.code
+                    ErrorCode.CANNOT_FIND_CHILD_CATEGORY.code,
                 )
             }
 

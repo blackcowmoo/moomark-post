@@ -6,5 +6,5 @@ data class CommentDto(
     val postId: Long? = null,
     val parentsId: Long? = null,
     val childIdList: List<Long>? = null,
-    val content: String? = null
+    val content: String? = null,
 )

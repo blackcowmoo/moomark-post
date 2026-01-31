@@ -18,7 +18,7 @@ class PostCategory(
     var post: Post,
     @JoinColumn(name = "category_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    var category: Category
+    var category: Category,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -12,21 +12,11 @@ interface PostRepository : JpaRepository<Post, Long> {
 
     override fun findById(id: Long): Optional<Post>
 
-    fun findByIdGreaterThan(
-        id: Long,
-        paging: Pageable
-    ): List<Post>
+    fun findByIdGreaterThan(id: Long, paging: Pageable): List<Post>
 
-    fun findByIdLessThan(
-        id: Long,
-        paging: Pageable
-    ): List<Post>
+    fun findByIdLessThan(id: Long, paging: Pageable): List<Post>
 
-    fun findByUserIdAndIdLessThan(
-        userId: String,
-        id: Long,
-        paging: Pageable
-    ): List<Post>
+    fun findByUserIdAndIdLessThan(userId: String, id: Long, paging: Pageable): List<Post>
 
     override fun count(): Long
 

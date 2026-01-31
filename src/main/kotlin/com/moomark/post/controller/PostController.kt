@@ -22,13 +22,13 @@ import javax.servlet.http.HttpServletResponse
 @RestController
 class PostController(
     private val postService: PostService,
-    private val commentService: CommentService
+    private val commentService: CommentService,
 ) {
     // Data classes
     data class RequestTotalPostInfo(
         val postInfo: PostDto,
         val totalCommentCount: Int,
-        val commentList: List<CommentDto>
+        val commentList: List<CommentDto>,
     )
 
     companion object {
@@ -49,10 +49,7 @@ class PostController(
             .trim()
     }
 
-    private fun validateInput(
-        title: String?,
-        content: String?
-    ): String? {
+    private fun validateInput(title: String?, content: String?): String? {
         val errors = mutableListOf<String>()
 
         if (title.isNullOrEmpty() || content.isNullOrEmpty()) {
@@ -73,42 +70,34 @@ class PostController(
     @GetMapping("/api/v1/posts")
     fun getPosts(
         @RequestParam(required = false) offset: Long?,
-        @RequestParam(required = false) limit: Int?
+        @RequestParam(required = false) limit: Int?,
     ): List<Post> = postService.getPosts(offset, limit)
 
     @GetMapping("/api/v1/posts/count")
     fun getPostsCount(): Long = postService.getPostsCount()
 
     @GetMapping("/api/v1/post/{postId}")
-    fun getPost(
-        @PathVariable("postId") postId: Long
-    ): Post = postService.getPost(postId)
+    fun getPost(@PathVariable("postId") postId: Long): Post = postService.getPost(postId)
 
     @GetMapping("/post/{postId}/content")
     @Throws(JpaException::class)
-    fun getPostInfoById(
-        @PathVariable("postId") postId: Long
-    ): ResponseEntity<PostDto> = ResponseEntity(postService.getPostInfoById(postId), HttpStatus.OK)
+    fun getPostInfoById(@PathVariable("postId") postId: Long): ResponseEntity<PostDto> =
+        ResponseEntity(postService.getPostInfoById(postId), HttpStatus.OK)
 
     @GetMapping("/post/{postId}/info")
     @Throws(Exception::class)
-    fun getTotalPostInfoById(
-        @PathVariable("postId") postId: Long
-    ): ResponseEntity<RequestTotalPostInfo> {
+    fun getTotalPostInfoById(@PathVariable("postId") postId: Long): ResponseEntity<RequestTotalPostInfo> {
         val result =
             RequestTotalPostInfo(
                 postInfo = postService.getPostInfoById(postId),
                 totalCommentCount = commentService.getCommentCountByPostId(postId),
-                commentList = commentService.getCommentByPostId(postId)
+                commentList = commentService.getCommentByPostId(postId),
             )
         return ResponseEntity(result, HttpStatus.OK)
     }
 
     @PostMapping("/api/v1/post")
-    fun writePost(
-        response: HttpServletResponse,
-        @RequestBody(required = true) body: PostDto
-    ): ResponseEntity<Any> {
+    fun writePost(response: HttpServletResponse, @RequestBody(required = true) body: PostDto): ResponseEntity<Any> {
         val user = getUser()
         val errorResponse =
             when {
@@ -121,7 +110,7 @@ class PostController(
                     response.status = HttpStatus.BAD_REQUEST.value()
                     ResponseEntity(
                         mapOf("error" to validateInput(body.title, body.content)),
-                        HttpStatus.BAD_REQUEST
+                        HttpStatus.BAD_REQUEST,
                     )
                 }
 
@@ -135,18 +124,16 @@ class PostController(
                 postService.savePost(
                     user!!.userId,
                     sanitizeInput(body.title),
-                    sanitizeInput(body.content)
+                    sanitizeInput(body.content),
                 ),
-                HttpStatus.OK
+                HttpStatus.OK,
             )
             ) as ResponseEntity<Any>
     }
 
     @DeleteMapping("/post/{postId}")
     @Throws(JpaException::class)
-    fun deletePostInfoById(
-        @PathVariable postId: Long
-    ): ResponseEntity<String> {
+    fun deletePostInfoById(@PathVariable postId: Long): ResponseEntity<String> {
         postService.deletePost(postId)
         return ResponseEntity("Success to delete post information", HttpStatus.OK)
     }

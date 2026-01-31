@@ -18,7 +18,7 @@ class Comment(
     @Column(name = "user_id")
     var userId: String?,
     @Column(name = "content")
-    var content: String?
+    var content: String?,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

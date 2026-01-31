@@ -13,7 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 class SecurityConfig(
-    private val passportService: PassportService
+    private val passportService: PassportService,
 ) : WebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
         http
@@ -45,7 +45,7 @@ class SecurityConfig(
 
         http.addFilterBefore(
             PassportFilter(passportService),
-            UsernamePasswordAuthenticationFilter::class.java
+            UsernamePasswordAuthenticationFilter::class.java,
         )
     }
 }

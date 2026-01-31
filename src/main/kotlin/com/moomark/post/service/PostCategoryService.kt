@@ -16,12 +16,9 @@ import org.springframework.transaction.annotation.Transactional
 class PostCategoryService(
     private val postRepository: PostRepository,
     private val categoryRepository: CategoryRepository,
-    private val postCategoryRepository: PostCategoryRepository
+    private val postCategoryRepository: PostCategoryRepository,
 ) {
-    fun addCategoryToPost(
-        postId: Long,
-        categoryId: Long
-    ) {
+    fun addCategoryToPost(postId: Long, categoryId: Long) {
         val post =
             postRepository.findById(postId).orElseThrow {
                 JpaException(ErrorCode.CANNOT_FIND_POST.msg)
@@ -30,19 +27,16 @@ class PostCategoryService(
             categoryRepository.findById(categoryId).orElseThrow {
                 JpaException(
                     ErrorCode.CANNOT_FIND_CATEGORY.msg,
-                    ErrorCode.CANNOT_FIND_CATEGORY.code
+                    ErrorCode.CANNOT_FIND_CATEGORY.code,
                 )
             }
 
         postCategoryRepository.save(
-            PostCategory(post = post, category = category)
+            PostCategory(post = post, category = category),
         )
     }
 
-    fun deleteCategoryToPost(
-        postId: Long,
-        categoryId: Long
-    ) {
+    fun deleteCategoryToPost(postId: Long, categoryId: Long) {
         val post =
             postRepository.findById(postId).orElseThrow {
                 JpaException(ErrorCode.CANNOT_FIND_POST.msg, ErrorCode.CANNOT_FIND_POST.code)
@@ -51,7 +45,7 @@ class PostCategoryService(
             categoryRepository.findById(categoryId).orElseThrow {
                 JpaException(
                     ErrorCode.CANNOT_FIND_CATEGORY.msg,
-                    ErrorCode.CANNOT_FIND_CATEGORY.code
+                    ErrorCode.CANNOT_FIND_CATEGORY.code,
                 )
             }
 
@@ -66,7 +60,7 @@ class PostCategoryService(
             categoryRepository.findById(categoryId).orElseThrow {
                 JpaException(
                     ErrorCode.CANNOT_FIND_CATEGORY.msg,
-                    ErrorCode.CANNOT_FIND_CATEGORY.code
+                    ErrorCode.CANNOT_FIND_CATEGORY.code,
                 )
             }
 
@@ -76,14 +70,13 @@ class PostCategoryService(
     }
 
     // DTO 변환 확장 함수
-    private fun Post.toDto() =
-        PostDto(
-            id = this.id,
-            userId = this.userId,
-            title = this.title,
-            content = this.content,
-            uploadTime = this.uploadTime,
-            recommendCount = this.recommendCount,
-            viewsCount = this.viewsCount
-        )
+    private fun Post.toDto() = PostDto(
+        id = this.id,
+        userId = this.userId,
+        title = this.title,
+        content = this.content,
+        uploadTime = this.uploadTime,
+        recommendCount = this.recommendCount,
+        viewsCount = this.viewsCount,
+    )
 }

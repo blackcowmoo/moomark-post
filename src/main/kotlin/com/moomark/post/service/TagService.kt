@@ -10,14 +10,14 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional
 class TagService(
-    private val tagRepository: TagRepository
+    private val tagRepository: TagRepository,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
     fun addTag(information: String): Long {
         val tag =
             Tag(
-                information = information
+                information = information,
             )
 
         log.info("Add information : {}", information)
@@ -34,7 +34,7 @@ class TagService(
 
         return TagDto(
             id = tag?.id,
-            information = tag?.information
+            information = tag?.information,
         )
     }
 }

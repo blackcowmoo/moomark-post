@@ -13,7 +13,7 @@ import javax.persistence.OneToMany
 @EntityListeners(AuditingEntityListener::class)
 class Tag(
     @Column(name = "tag_information")
-    var information: String
+    var information: String,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

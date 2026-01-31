@@ -11,13 +11,9 @@ import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 
 class PassportFilter(
-    private val passportService: PassportService
+    private val passportService: PassportService,
 ) : GenericFilterBean() {
-    override fun doFilter(
-        request: ServletRequest,
-        response: ServletResponse,
-        chain: FilterChain
-    ) {
+    override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
         val httpRequest = request as HttpServletRequest
         val passport = httpRequest.getHeader("x-moom-passport-user")
         val key = httpRequest.getHeader("x-moom-passport-key")
@@ -30,10 +26,9 @@ class PassportFilter(
         chain.doFilter(request, response)
     }
 
-    private fun getAuthentication(user: User?): Authentication =
-        UsernamePasswordAuthenticationToken(
-            user,
-            "",
-            listOf(SimpleGrantedAuthority("ROLE_USER"))
-        )
+    private fun getAuthentication(user: User?): Authentication = UsernamePasswordAuthenticationToken(
+        user,
+        "",
+        listOf(SimpleGrantedAuthority("ROLE_USER")),
+    )
 }

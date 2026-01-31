@@ -16,7 +16,7 @@ import javax.crypto.SecretKey
 
 @Repository
 class PassportRepository(
-    private val restTemplate: RestTemplate
+    private val restTemplate: RestTemplate,
 ) {
     @Value("\${passport.auth-server.public-key}")
     private lateinit var apiEndpoint: String
@@ -37,7 +37,7 @@ class PassportRepository(
                 apiEndpoint,
                 HttpMethod.GET,
                 HttpEntity<Any?>(null, null),
-                String::class.java
+                String::class.java,
             ).body ?: run {
             check(false) { "Failed to fetch public key" }
             ""
@@ -49,20 +49,16 @@ class PassportRepository(
         publicKey = keyFactory.generatePublic(ukeySpec)
     }
 
-    fun rsaDecryptByPublicKey(data: ByteArray): String? =
-        try {
-            cipher?.init(Cipher.DECRYPT_MODE, publicKey)
-            String(cipher.doFinal(data))
-        } catch (e: IllegalStateException) {
-            log.error("decryptByPublicKey: ", e)
-            null
-        }
+    fun rsaDecryptByPublicKey(data: ByteArray): String? = try {
+        cipher?.init(Cipher.DECRYPT_MODE, publicKey)
+        String(cipher.doFinal(data))
+    } catch (e: IllegalStateException) {
+        log.error("decryptByPublicKey: ", e)
+        null
+    }
 
     @Throws(Exception::class)
-    fun aesDecrypt(
-        body: ByteArray,
-        key: SecretKey
-    ): String {
+    fun aesDecrypt(body: ByteArray, key: SecretKey): String {
         val cipher = Cipher.getInstance("AES")
         cipher.init(Cipher.DECRYPT_MODE, key)
         val decrypted = cipher.doFinal(body)

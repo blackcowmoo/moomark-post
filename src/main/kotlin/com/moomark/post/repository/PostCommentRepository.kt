@@ -9,8 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface PostCommentRepository : JpaRepository<PostComment, Long> {
     fun findByPost(post: Post): List<PostComment>
 
-    fun findByPost(
-        post: Post,
-        pageable: Pageable
-    ): Page<PostComment>
+    fun findByPost(post: Post, pageable: Pageable): Page<PostComment>
 }

@@ -18,7 +18,7 @@ class PostComment(
     var post: Post,
     @JoinColumn(name = "comment_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    var comment: Comment
+    var comment: Comment,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

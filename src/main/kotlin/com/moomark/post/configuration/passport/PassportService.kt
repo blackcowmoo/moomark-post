@@ -13,7 +13,7 @@ import javax.crypto.spec.SecretKeySpec
 @Service
 class PassportService(
     private val mapper: ObjectMapper,
-    private val passportRepository: PassportRepository
+    private val passportRepository: PassportRepository,
 ) {
     private val decoder: Base64.Decoder = Base64.getDecoder()
 
@@ -21,28 +21,24 @@ class PassportService(
         private val log = LoggerFactory.getLogger(PassportService::class.java)
     }
 
-    fun parsePassport(
-        passport: String,
-        passportKey: String
-    ): User? =
-        try {
-            val passportResult = decryptPassport(passportKey)
-            if (passportResult.exp?.after(Timestamp.valueOf(LocalDateTime.now())) == true) {
-                val hash = passportResult.hash
-                val key = SecretKeySpec(decoder.decode(passportResult.key), "AES")
-                val userBody = passportRepository.aesDecrypt(decoder.decode(passport), key)
-                if (getHash(userBody) == hash) {
-                    mapper.readValue(decoder.decode(userBody), User::class.java)
-                } else {
-                    null
-                }
+    fun parsePassport(passport: String, passportKey: String): User? = try {
+        val passportResult = decryptPassport(passportKey)
+        if (passportResult.exp?.after(Timestamp.valueOf(LocalDateTime.now())) == true) {
+            val hash = passportResult.hash
+            val key = SecretKeySpec(decoder.decode(passportResult.key), "AES")
+            val userBody = passportRepository.aesDecrypt(decoder.decode(passport), key)
+            if (getHash(userBody) == hash) {
+                mapper.readValue(decoder.decode(userBody), User::class.java)
             } else {
                 null
             }
-        } catch (e: IllegalStateException) {
-            log.error(e.message, e)
+        } else {
             null
         }
+    } catch (e: IllegalStateException) {
+        log.error(e.message, e)
+        null
+    }
 
     @Throws(Exception::class)
     private fun decryptPassport(passport: String): Passport {

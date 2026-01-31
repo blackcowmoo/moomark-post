@@ -10,5 +10,5 @@ data class PostDto(
     val title: String? = null,
     val content: String? = null,
     val uploadTime: LocalDateTime? = null,
-    val categories: List<CategoryDto>? = null
+    val categories: List<CategoryDto>? = null,
 )

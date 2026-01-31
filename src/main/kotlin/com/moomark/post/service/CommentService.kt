@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional
 class CommentService(
     private val postRepository: PostRepository,
     private val commentRepository: CommentRepository,
-    private val postCommentRepository: PostCommentRepository
+    private val postCommentRepository: PostCommentRepository,
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -36,10 +36,7 @@ class CommentService(
     }
 
     @Transactional(readOnly = true)
-    fun getCommentByPostId(
-        postId: Long,
-        pageNumber: Int
-    ): List<CommentDto> {
+    fun getCommentByPostId(postId: Long, pageNumber: Int): List<CommentDto> {
         val post =
             postRepository
                 .findById(postId)
@@ -62,10 +59,7 @@ class CommentService(
     }
 
     @Transactional(readOnly = true)
-    fun getCommentByUserId(
-        postId: Long,
-        userId: String
-    ): List<CommentDto> {
+    fun getCommentByUserId(postId: Long, userId: String): List<CommentDto> {
         val post =
             postRepository
                 .findById(postId)
@@ -82,32 +76,30 @@ class CommentService(
         val comment =
             Comment(
                 content = commentDto.content,
-                userId = commentDto.userId
+                userId = commentDto.userId,
             )
         return commentRepository.save(comment).id!!
     }
 
-    fun deleteComment(id: Long): Boolean =
-        try {
-            val comment =
-                commentRepository
-                    .findById(id)
-                    .orElseThrow { NoSuchElementException("No comment information was found by comment id.") }
-            commentRepository.deleteById(comment.id!!)
-            true
-        } catch (e: NoSuchElementException) {
-            log.error("delete error {}", e.message)
-            false
-        }
+    fun deleteComment(id: Long): Boolean = try {
+        val comment =
+            commentRepository
+                .findById(id)
+                .orElseThrow { NoSuchElementException("No comment information was found by comment id.") }
+        commentRepository.deleteById(comment.id!!)
+        true
+    } catch (e: NoSuchElementException) {
+        log.error("delete error {}", e.message)
+        false
+    }
 
     /**
      * Entity를 DTO로 변환하는 확장 함수 (코드 중복 제거)
      */
-    private fun Comment.toDto() =
-        CommentDto(
-            id = this.id,
-            content = this.content,
-            parentsId = this.parent?.id,
-            userId = this.userId
-        )
+    private fun Comment.toDto() = CommentDto(
+        id = this.id,
+        content = this.content,
+        parentsId = this.parent?.id,
+        userId = this.userId,
+    )
 }

@@ -19,7 +19,7 @@ class Post(
     @Column(name = "title")
     var title: String? = null,
     @Column(name = "content", columnDefinition = "TEXT")
-    var content: String? = null
+    var content: String? = null,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,10 +48,7 @@ class Post(
         }
     }
 
-    fun updateInformation(
-        title: String,
-        content: String
-    ) {
+    fun updateInformation(title: String, content: String) {
         this.title = title
         this.content = content
         this.uploadTime = LocalDateTime.now()

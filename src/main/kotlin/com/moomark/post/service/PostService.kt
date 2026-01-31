@@ -26,20 +26,12 @@ class PostService(
 
     fun savePost(postDto: PostDto): Post = savePost(postDto.userId!!, postDto.title!!, postDto.content!!)
 
-    fun savePost(
-        userId: String,
-        title: String?,
-        content: String?,
-    ): Post =
-        postRepository.save(
-            Post(title = title, userId = userId, content = content),
-        )
+    fun savePost(userId: String, title: String?, content: String?): Post = postRepository.save(
+        Post(title = title, userId = userId, content = content),
+    )
 
     @Transactional(readOnly = true)
-    fun getPosts(
-        offset: Long?,
-        limit: Int?,
-    ): List<Post> = getPostsWithOptions(offset, limit, null, null)
+    fun getPosts(offset: Long?, limit: Int?): List<Post> = getPostsWithOptions(offset, limit, null, null)
 
     @Transactional(readOnly = true)
     fun getPostsCount(): Long = getPostsCountWithOptions(null)
@@ -100,21 +92,19 @@ class PostService(
         }
     }
 
-    private fun getPostsCountWithOptions(search: SearchOption?): Long =
-        when (search?.key) {
-            SearchKey.USER_ID -> postRepository.countByUserId(search.value)
-            else -> postRepository.count()
-        }
+    private fun getPostsCountWithOptions(search: SearchOption?): Long = when (search?.key) {
+        SearchKey.USER_ID -> postRepository.countByUserId(search.value)
+        else -> postRepository.count()
+    }
 
     // DTO 변환 확장 함수
-    private fun Post.toDto() =
-        PostDto(
-            id = this.id,
-            userId = this.userId,
-            title = this.title,
-            content = this.content,
-            uploadTime = this.uploadTime,
-            recommendCount = this.recommendCount,
-            viewsCount = this.viewsCount,
-        )
+    private fun Post.toDto() = PostDto(
+        id = this.id,
+        userId = this.userId,
+        title = this.title,
+        content = this.content,
+        uploadTime = this.uploadTime,
+        recommendCount = this.recommendCount,
+        viewsCount = this.viewsCount,
+    )
 }
