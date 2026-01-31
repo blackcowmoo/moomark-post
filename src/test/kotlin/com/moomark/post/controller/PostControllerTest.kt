@@ -65,12 +65,12 @@ class PostControllerTest {
                             .header("Content-Type", "application/json")
                             .header("x-moom-passport-user", passport!!.passport)
                             .header("x-moom-passport-key", passport!!.key)
-                            .content(requestParams.toJSONString())
+                            .content(requestParams.toJSONString()), // 콤마 추가
                     ).andExpect(status().isOk)
                     .andReturn()
                     .response
                     .contentAsString,
-                Post::class.java
+                Post::class.java,
             )
 
         assertEquals(post.title, testTitle)
@@ -105,7 +105,7 @@ class PostControllerTest {
                     .andReturn()
                     .response
                     .contentAsString,
-                Array<Post>::class.java
+                Array<Post>::class.java, // 콤마 추가
             )
 
         assertEquals(post.size, 1)
@@ -131,12 +131,12 @@ class PostControllerTest {
                             .header("Content-Type", "application/json")
                             .header("x-moom-passport-user", passport!!.passport)
                             .header("x-moom-passport-key", passport!!.key)
-                            .content(requestParams.toJSONString())
+                            .content(requestParams.toJSONString()), // 콤마 추가
                     ).andExpect(status().isOk)
                     .andReturn()
                     .response
                     .contentAsString,
-                Post::class.java
+                Post::class.java, // 콤마 추가
             )
 
         assertEquals(post.title, testTitle)
@@ -149,12 +149,12 @@ class PostControllerTest {
                 mvc
                     .perform(
                         get("/api/v1/post/$postId")
-                            .header("Content-Type", "application/json")
+                            .header("Content-Type", "application/json"), // 콤마 추가
                     ).andExpect(status().isOk)
                     .andReturn()
                     .response
                     .contentAsString,
-                Post::class.java
+                Post::class.java, // 콤마 추가
             )
 
         assertEquals(resultPost.id, postId)
@@ -179,7 +179,7 @@ class PostControllerTest {
                     .header("Content-Type", "application/json")
                     .header("x-moom-passport-user", passport!!.passport)
                     .header("x-moom-passport-key", passport!!.key)
-                    .content(requestParams.toJSONString())
+                    .content(requestParams.toJSONString()), // 콤마 추가
             ).andExpect(status().isBadRequest)
             .andReturn()
             .response
@@ -203,7 +203,7 @@ class PostControllerTest {
                     .header("Content-Type", "application/json")
                     .header("x-moom-passport-user", passport!!.passport)
                     .header("x-moom-passport-key", passport!!.key)
-                    .content(requestParams.toJSONString())
+                    .content(requestParams.toJSONString()), // 콤마 추가
             ).andExpect(status().isBadRequest)
             .andReturn()
             .response
