@@ -64,9 +64,9 @@ class PostCategoryService(
                 )
             }
 
-        return postCategoryRepository.findByCategory(category)?.map { postCategory ->
-            postCategory?.post!!.toDto()
-        } ?: emptyList()
+        return postCategoryRepository.findByCategory(category).map { postCategory ->
+            postCategory.post.toDto()
+        }
     }
 
     // DTO 변환 확장 함수
