@@ -53,29 +53,25 @@ class PassportRepository(
         publicKey = keyFactory.generatePublic(ukeySpec)
     }
 
-    fun rsaDecryptByPublicKey(data: ByteArray): String? =
-        try {
-            cipher?.init(Cipher.DECRYPT_MODE, publicKey)
-            String(cipher.doFinal(data))
-        } catch (e: InvalidKeyException) {
-            log.error("Invalid RSA key: ${e.message}", e)
-            null
-        } catch (e: BadPaddingException) {
-            log.error("Bad RSA padding: ${e.message}", e)
-            null
-        } catch (e: IllegalBlockSizeException) {
-            log.error("Invalid RSA block size: ${e.message}", e)
-            null
-        } catch (e: GeneralSecurityException) {
-            log.error("RSA decryption failed: ${e.message}", e)
-            null
-        }
+    fun rsaDecryptByPublicKey(data: ByteArray): String? = try {
+        cipher?.init(Cipher.DECRYPT_MODE, publicKey)
+        String(cipher.doFinal(data))
+    } catch (e: InvalidKeyException) {
+        log.error("Invalid RSA key: ${e.message}", e)
+        null
+    } catch (e: BadPaddingException) {
+        log.error("Bad RSA padding: ${e.message}", e)
+        null
+    } catch (e: IllegalBlockSizeException) {
+        log.error("Invalid RSA block size: ${e.message}", e)
+        null
+    } catch (e: GeneralSecurityException) {
+        log.error("RSA decryption failed: ${e.message}", e)
+        null
+    }
 
     @Throws(Exception::class)
-    fun aesDecrypt(
-        body: ByteArray,
-        key: SecretKey,
-    ): String {
+    fun aesDecrypt(body: ByteArray, key: SecretKey): String {
         val cipher = Cipher.getInstance("AES")
         cipher.init(Cipher.DECRYPT_MODE, key)
         val decrypted = cipher.doFinal(body)

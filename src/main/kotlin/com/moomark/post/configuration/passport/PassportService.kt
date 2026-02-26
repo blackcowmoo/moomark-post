@@ -21,34 +21,30 @@ class PassportService(
         private val log = LoggerFactory.getLogger(PassportService::class.java)
     }
 
-    fun parsePassport(
-        passport: String,
-        passportKey: String,
-    ): User? =
-        try {
-            val passportResult = decryptPassport(passportKey)
-            if (passportResult.exp?.after(Timestamp.valueOf(LocalDateTime.now())) == true) {
-                val hash = passportResult.hash
-                val key = SecretKeySpec(decoder.decode(passportResult.key), "AES")
-                val userBody = passportRepository.aesDecrypt(decoder.decode(passport), key)
-                if (getHash(userBody) == hash) {
-                    mapper.readValue(decoder.decode(userBody), User::class.java)
-                } else {
-                    null
-                }
+    fun parsePassport(passport: String, passportKey: String): User? = try {
+        val passportResult = decryptPassport(passportKey)
+        if (passportResult.exp?.after(Timestamp.valueOf(LocalDateTime.now())) == true) {
+            val hash = passportResult.hash
+            val key = SecretKeySpec(decoder.decode(passportResult.key), "AES")
+            val userBody = passportRepository.aesDecrypt(decoder.decode(passport), key)
+            if (getHash(userBody) == hash) {
+                mapper.readValue(decoder.decode(userBody), User::class.java)
             } else {
                 null
             }
-        } catch (e: IllegalArgumentException) {
-            log.error("Invalid passport format: ${e.message}", e)
-            null
-        } catch (e: com.fasterxml.jackson.core.JsonProcessingException) {
-            log.error("Invalid passport JSON: ${e.message}", e)
-            null
-        } catch (e: IllegalStateException) {
-            log.error("Invalid passport state: ${e.message}", e)
+        } else {
             null
         }
+    } catch (e: IllegalArgumentException) {
+        log.error("Invalid passport format: ${e.message}", e)
+        null
+    } catch (e: com.fasterxml.jackson.core.JsonProcessingException) {
+        log.error("Invalid passport JSON: ${e.message}", e)
+        null
+    } catch (e: IllegalStateException) {
+        log.error("Invalid passport state: ${e.message}", e)
+        null
+    }
 
     @Throws(Exception::class)
     private fun decryptPassport(passport: String): Passport {
