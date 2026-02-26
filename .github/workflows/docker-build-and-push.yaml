@@ -15,57 +15,63 @@ env:
 
 jobs:
   build:
+    # deploy 라벨이 있거나, develop/main 브랜치인 경우에 실행
     if: contains(github.event.pull_request.labels.*.name, 'deploy') || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main'
     name: Build and Push
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v1
-        with:
-          java-version: 11
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/cache@v2
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
         with:
-          path: ~/.gradle
-          key: java-${{ hashFiles('build.gradle') }}
+          java-version: '11'
+          distribution: 'temurin'
+          cache: 'gradle'
 
       - name: Run build
         run: ./gradlew build -x checkstyleMain -x test -x checkstyleTest --stacktrace -Pprofile=production
 
       - name: Set docker registry (PR)
-        run: echo "DOCKER_REGISTRY=$REGISTRY/pr" >> $GITHUB_ENV
         if: contains(github.event.pull_request.labels.*.name, 'deploy')
+        run: echo "DOCKER_REGISTRY=$REGISTRY/pr" >> $GITHUB_ENV
 
       - name: Set docker registry (deployment)
-        run: echo "DOCKER_REGISTRY=$REGISTRY/develop" >> $GITHUB_ENV
         if: "!contains(github.event.pull_request.labels.*.name, 'deploy')"
+        run: echo "DOCKER_REGISTRY=$REGISTRY/develop" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v3
+
       - name: Short sha
         id: sha
-        run: echo "::set-output name=sha_short::$(echo ${GITHUB_HEAD_SHA:0:7})"
+        run: |
+          # set-output 구문은 사용 중지되었으므로 $GITHUB_OUTPUT 형식을 사용합니다.
+          echo "sha_short=$(echo ${GITHUB_HEAD_SHA:0:7})" >> $GITHUB_OUTPUT
         env:
           GITHUB_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: type=raw,value=${{ steps.sha.outputs.sha_short }}
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+
+      - name: Login to Harbor Container Registry
+        uses: docker/login-action@v3
         with:
-          registry: ${{ env.DOCKER_REGISTRY }}
+          registry: ${{ env.REGISTRY }}
           username: ${{ secrets.HARBOR_USER_ID }}
           password: ${{ secrets.HARBOR_USER_PASSWORD }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        uses: docker/build-push-action@v5
         with:
           context: .
-          push: ${{ contains(github.event.pull_request.labels.*.name, 'deploy') || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/main' }}
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
