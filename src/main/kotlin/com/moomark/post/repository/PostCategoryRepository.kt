@@ -10,8 +10,5 @@ interface PostCategoryRepository : JpaRepository<PostCategory, Long> {
 
     fun findByCategory(category: Category): MutableList<PostCategory>
 
-    fun findByPostAndCategory(
-        post: Post,
-        category: Category,
-    ): PostCategory?
+    fun findByPostAndCategory(post: Post, category: Category): PostCategory?
 }

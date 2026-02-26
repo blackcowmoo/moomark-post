@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:no-wildcard-imports")
+
 package com.moomark.post.controller
 
 import com.moomark.post.exception.JpaException

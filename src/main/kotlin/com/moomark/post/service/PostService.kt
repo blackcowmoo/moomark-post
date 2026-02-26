@@ -67,7 +67,7 @@ class PostService(
         order: SortOption?,
     ): List<Post> {
         val finalOffset = offset ?: Long.MAX_VALUE
-        val finalLimit = if (limit == null || limit < 0 || limit > MAX_LIMIT) MAX_LIMIT else limit
+        val finalLimit = if (limit == null || limit <= 0 || limit > MAX_LIMIT) MAX_LIMIT else limit
 
         val orders = mutableListOf<Order>()
         order?.let {
