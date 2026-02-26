@@ -5,6 +5,7 @@ import com.moomark.post.model.entity.Post
 import com.moomark.post.repository.PassportTestRepository
 import net.minidev.json.JSONObject
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
@@ -56,6 +57,7 @@ class PostControllerTest {
         requestParams["content"] = testContent
 
         val passport = passportTestRepository.generatePassport()
+        assertNotNull(passport, "Passport should not be null - auth service may be unavailable")
 
         val post =
             mapper.readValue(
@@ -63,9 +65,9 @@ class PostControllerTest {
                     .perform(
                         post("/api/v1/post")
                             .header("Content-Type", "application/json")
-                            .header("x-moom-passport-user", passport!!.passport)
-                            .header("x-moom-passport-key", passport!!.key)
-                            .content(requestParams.toJSONString()), // 콤마 추가
+                            .header("x-moom-passport-user", passport?.passport)
+                            .header("x-moom-passport-key", passport?.key)
+                            .content(requestParams.toJSONString()),
                     ).andExpect(status().isOk)
                     .andReturn()
                     .response
@@ -122,6 +124,7 @@ class PostControllerTest {
         requestParams["content"] = testContent
 
         val passport = passportTestRepository.generatePassport()
+        assertNotNull(passport, "Passport should not be null - auth service may be unavailable")
 
         val post =
             mapper.readValue(
@@ -129,14 +132,14 @@ class PostControllerTest {
                     .perform(
                         post("/api/v1/post")
                             .header("Content-Type", "application/json")
-                            .header("x-moom-passport-user", passport!!.passport)
-                            .header("x-moom-passport-key", passport!!.key)
-                            .content(requestParams.toJSONString()), // 콤마 추가
+                            .header("x-moom-passport-user", passport?.passport)
+                            .header("x-moom-passport-key", passport?.key)
+                            .content(requestParams.toJSONString()),
                     ).andExpect(status().isOk)
                     .andReturn()
                     .response
                     .contentAsString,
-                Post::class.java, // 콤마 추가
+                Post::class.java,
             )
 
         assertEquals(post.title, testTitle)
@@ -149,12 +152,12 @@ class PostControllerTest {
                 mvc
                     .perform(
                         get("/api/v1/post/$postId")
-                            .header("Content-Type", "application/json"), // 콤마 추가
+                            .header("Content-Type", "application/json"),
                     ).andExpect(status().isOk)
                     .andReturn()
                     .response
                     .contentAsString,
-                Post::class.java, // 콤마 추가
+                Post::class.java,
             )
 
         assertEquals(resultPost.id, postId)
@@ -172,14 +175,15 @@ class PostControllerTest {
         requestParams["content"] = testContent
 
         val passport = passportTestRepository.generatePassport()
+        assertNotNull(passport, "Passport should not be null - auth service may be unavailable")
 
         mvc
             .perform(
                 post("/api/v1/post")
                     .header("Content-Type", "application/json")
-                    .header("x-moom-passport-user", passport!!.passport)
-                    .header("x-moom-passport-key", passport!!.key)
-                    .content(requestParams.toJSONString()), // 콤마 추가
+                    .header("x-moom-passport-user", passport?.passport)
+                    .header("x-moom-passport-key", passport?.key)
+                    .content(requestParams.toJSONString()),
             ).andExpect(status().isBadRequest)
             .andReturn()
             .response
@@ -196,14 +200,15 @@ class PostControllerTest {
         requestParams["content"] = ""
 
         val passport = passportTestRepository.generatePassport()
+        assertNotNull(passport, "Passport should not be null - auth service may be unavailable")
 
         mvc
             .perform(
                 post("/api/v1/post")
                     .header("Content-Type", "application/json")
-                    .header("x-moom-passport-user", passport!!.passport)
-                    .header("x-moom-passport-key", passport!!.key)
-                    .content(requestParams.toJSONString()), // 콤마 추가
+                    .header("x-moom-passport-user", passport?.passport)
+                    .header("x-moom-passport-key", passport?.key)
+                    .content(requestParams.toJSONString()),
             ).andExpect(status().isBadRequest)
             .andReturn()
             .response

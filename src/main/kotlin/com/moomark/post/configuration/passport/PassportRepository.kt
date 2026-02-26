@@ -52,8 +52,8 @@ class PassportRepository(
     fun rsaDecryptByPublicKey(data: ByteArray): String? = try {
         cipher?.init(Cipher.DECRYPT_MODE, publicKey)
         String(cipher.doFinal(data))
-    } catch (e: IllegalStateException) {
-        log.error("decryptByPublicKey: ", e)
+    } catch (e: Exception) {
+        log.error("RSA decryption failed: ${e.message}", e)
         null
     }
 

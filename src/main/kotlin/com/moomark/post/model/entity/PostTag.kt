@@ -16,7 +16,7 @@ class PostTag(
     @JoinColumn(name = "post_id")
     @ManyToOne(fetch = FetchType.LAZY)
     var post: Post,
-    @JoinColumn(name = "comment_id")
+    @JoinColumn(name = "tag_id")
     @ManyToOne(fetch = FetchType.LAZY)
     var tag: Tag,
 ) {

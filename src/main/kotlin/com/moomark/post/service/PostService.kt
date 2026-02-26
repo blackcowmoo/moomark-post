@@ -37,7 +37,9 @@ class PostService(
     fun getPostsCount(): Long = getPostsCountWithOptions(null)
 
     @Transactional(readOnly = true)
-    fun getPost(id: Long): Post = postRepository.findById(id).orElse(null)
+    fun getPost(id: Long): Post = postRepository.findById(id).orElseThrow {
+        JpaException(ErrorCode.CANNOT_FIND_POST.msg, ErrorCode.CANNOT_FIND_POST.code)
+    }
 
     fun deletePost(postId: Long) {
         val post =

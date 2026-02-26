@@ -79,7 +79,11 @@ class PostController(
     fun getPostsCount(): Long = postService.getPostsCount()
 
     @GetMapping("/api/v1/post/{postId}")
-    fun getPost(@PathVariable postId: Long): Post = postService.getPost(postId)
+    fun getPost(@PathVariable postId: Long): ResponseEntity<Post> = try {
+        ResponseEntity(postService.getPost(postId), HttpStatus.OK)
+    } catch (e: JpaException) {
+        ResponseEntity(HttpStatus.NOT_FOUND)
+    }
 
     @GetMapping("/post/{postId}/content")
     @Throws(JpaException::class)
@@ -101,6 +105,8 @@ class PostController(
     @PostMapping("/api/v1/post")
     fun writePost(response: HttpServletResponse, @RequestBody(required = true) body: PostDto): ResponseEntity<*> {
         val user = getUser()
+        val validationError = validateInput(body.title, body.content)
+
         val errorResponse =
             when {
                 user == null -> {
@@ -108,10 +114,10 @@ class PostController(
                     ResponseEntity(mapOf("error" to "Unauthorized"), HttpStatus.UNAUTHORIZED)
                 }
 
-                validateInput(body.title, body.content) != null -> {
+                validationError != null -> {
                     response.status = HttpStatus.BAD_REQUEST.value()
                     ResponseEntity(
-                        mapOf("error" to validateInput(body.title, body.content)),
+                        mapOf("error" to validationError),
                         HttpStatus.BAD_REQUEST,
                     )
                 }

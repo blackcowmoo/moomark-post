@@ -35,8 +35,8 @@ class PassportService(
         } else {
             null
         }
-    } catch (e: IllegalStateException) {
-        log.error(e.message, e)
+    } catch (e: Exception) {
+        log.error("Invalid passport: ${e.message}", e)
         null
     }
 
