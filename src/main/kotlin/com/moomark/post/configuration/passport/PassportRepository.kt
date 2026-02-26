@@ -6,12 +6,16 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Repository
 import org.springframework.web.client.RestTemplate
+import java.security.GeneralSecurityException
+import java.security.InvalidKeyException
 import java.security.KeyFactory
 import java.security.PublicKey
 import java.security.spec.X509EncodedKeySpec
 import java.util.*
 import javax.annotation.PostConstruct
+import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
+import javax.crypto.IllegalBlockSizeException
 import javax.crypto.SecretKey
 
 @Repository
@@ -49,16 +53,29 @@ class PassportRepository(
         publicKey = keyFactory.generatePublic(ukeySpec)
     }
 
-    fun rsaDecryptByPublicKey(data: ByteArray): String? = try {
-        cipher?.init(Cipher.DECRYPT_MODE, publicKey)
-        String(cipher.doFinal(data))
-    } catch (e: Exception) {
-        log.error("RSA decryption failed: ${e.message}", e)
-        null
-    }
+    fun rsaDecryptByPublicKey(data: ByteArray): String? =
+        try {
+            cipher?.init(Cipher.DECRYPT_MODE, publicKey)
+            String(cipher.doFinal(data))
+        } catch (e: InvalidKeyException) {
+            log.error("Invalid RSA key: ${e.message}", e)
+            null
+        } catch (e: BadPaddingException) {
+            log.error("Bad RSA padding: ${e.message}", e)
+            null
+        } catch (e: IllegalBlockSizeException) {
+            log.error("Invalid RSA block size: ${e.message}", e)
+            null
+        } catch (e: GeneralSecurityException) {
+            log.error("RSA decryption failed: ${e.message}", e)
+            null
+        }
 
     @Throws(Exception::class)
-    fun aesDecrypt(body: ByteArray, key: SecretKey): String {
+    fun aesDecrypt(
+        body: ByteArray,
+        key: SecretKey,
+    ): String {
         val cipher = Cipher.getInstance("AES")
         cipher.init(Cipher.DECRYPT_MODE, key)
         val decrypted = cipher.doFinal(body)
