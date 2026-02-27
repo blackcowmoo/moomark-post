@@ -12,6 +12,14 @@ jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
+
+    # PR 댓글 삭제/작성 계열 액션에서 권한 이슈를 피하기 위해 명시
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+      checks: write
+
     env:
       MIN_TEST_COVERAGE: 17
       ENVIRONMENT: dev
@@ -75,13 +83,15 @@ jobs:
           path: build/test-results/test/**/*.xml
           reporter: java-junit
 
+      # push 이벤트에는 github.event.number가 없어서 NaN 문제가 발생하므로,
+      # PR일 때만 실행 + PR 번호를 명시적으로 사용합니다.
       - name: Delete existing comment
         uses: izhangzhihao/delete-comment@master
-        if: always()
+        if: always() && github.event_name == 'pull_request'
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           delete_user_name: github-actions[bot]
-          issue_number: ${{ github.event.number }}
+          issue_number: ${{ github.event.pull_request.number }}
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2
