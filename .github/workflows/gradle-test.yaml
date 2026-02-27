@@ -18,6 +18,7 @@ jobs:
       contents: read
       issues: write
       pull-requests: write
+      checks: write
 
     env:
       MIN_TEST_COVERAGE: 17
